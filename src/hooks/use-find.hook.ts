@@ -3,7 +3,7 @@ import type { SitesTypeStruct, SiteTypeStruct } from "../types/sites.type";
 import { http } from "../api/api.service";
 import { ModisService } from "../services/modis.service";
 import type { SubsetTypeStruct } from "../types/subset.type";
-import type { DateTypeStruct } from "../types/date.type";
+import type { DateTypeStruct, SliderDateTypeStruct } from "../types/date.type";
 
 export const useFind = () => {
     const [sites, setSites] = useState<SitesTypeStruct | null>(null);
@@ -21,8 +21,13 @@ export const useFind = () => {
         return result;
     };
 
-    const getSubset = async (lat: number, lon: number, date: DateTypeStruct): Promise<SubsetTypeStruct> => {
-        const result: SubsetTypeStruct = await modisService.getSubset(lat, lon, date);
+    const getAllDatesByCoords = async (lat: number, lon: number): Promise<DateTypeStruct> => {
+        const result: DateTypeStruct = await modisService.getAllDatesByCoords(lat, lon);
+        return result;
+    }
+
+    const getSubset = async (lat: number, lon: number, date: string, km: number): Promise<SubsetTypeStruct> => {
+        const result: SubsetTypeStruct = await modisService.getSubset(lat, lon, date, km);
         return result;
     };
 
@@ -35,6 +40,7 @@ export const useFind = () => {
         subset,
         getAllSubset,
         getAllSites,
-        getSubset
+        getSubset,
+        getAllDatesByCoords
     };
 };

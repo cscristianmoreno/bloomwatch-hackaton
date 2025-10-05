@@ -4,7 +4,7 @@ import type { IModislService } from "../models/modis.model";
 import type { ProductsTypeStruct, ProductTypeStruct } from "../types/products.type";
 import type { SitesTypeStruct, SiteTypeStruct } from "../types/sites.type";
 import type { SubsetTypeStruct } from "../types/subset.type";
-import type { DateTypeStruct } from "../types/date.type";
+import type { DateTypeStruct, SliderDateTypeStruct } from "../types/date.type";
 
 export class ModisService implements IModislService {
     async getAllProducts(): Promise<ProductsTypeStruct> {
@@ -17,15 +17,26 @@ export class ModisService implements IModislService {
         return result.data;
     }
 
-    async getSubset(lat: number, lon: number, date: DateTypeStruct): Promise<SubsetTypeStruct> {
+    async getAllDatesByCoords(lat: number, lon: number): Promise<DateTypeStruct> {
+        const result: AxiosResponse<DateTypeStruct> = await http.get("/MOD13Q1/dates", {
+            params: {
+                latitude: lat,
+                longitude: lon
+            }
+        });
+
+        return result.data;
+    }
+
+    async getSubset(lat: number, lon: number, date: string, km: number): Promise<SubsetTypeStruct> {
          const result: AxiosResponse<SubsetTypeStruct> = await http.get("/MOD13Q1/subset", {
             params: {
                 latitude: lat,
                 longitude: lon,
-                startDate: `A${date.year}${date.day}`,
-                endDate: `A${date.year}${date.day}`,
-                kmAboveBelow: 5,
-                kmLeftRight: 5
+                startDate: date,
+                endDate: date,
+                kmAboveBelow: km,
+                kmLeftRight: km
             }
         });
 

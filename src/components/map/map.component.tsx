@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup, Polygon } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup, Polygon, Tooltip } from "react-leaflet";
 import { useEffect, useRef, useState, type FC, type ReactElement } from "react";
 
 import "leaflet/dist/leaflet.css";
@@ -13,29 +13,24 @@ import { Box, Button, Divider, Slider, Typography } from "@mui/joy";
 import PopupTitleComponent from "../popup-title/popup-title.component";
 import SliderComponent from "../sliders/slider.component";
 import { generateRasterPolygonsCentered, getColor } from "../../utils/cell.util";
+import type { InfoTypestruct } from "../../types/info.type";
+import InfoComponent from "../info/info.component";
+import PopupComponent from "../popup/popup.component";
 
 type LatLng = [number, number];
 type Polygon = LatLng[];
 
 const MapComponent: FC = (): ReactElement => {
 
-    const { sites, getSubset } = useFind();
-    const [polygons, setPolygons] = useState([]);
+    const { sites } = useFind();
 
-    const [date, setDate] = useState({
-        year: 2016,
-        day: 113
+    const [info, setInfo] = useState<InfoTypestruct>({
+        polygons: [],
+        band: "",
+        date: "",
+        siteSelected: -1,
+        km: 1
     });
-
-    const onFindSubset = async (lat: number, lon: number): Promise<void> => {
-        const result: SubsetTypeStruct = await getSubset(lat, lon, date);
-        const latlongs = generateRasterPolygonsCentered(result);
-        console.log(latlongs);
-        setPolygons(latlongs);
-    };
-
-    useEffect((): void => {
-    }, [polygons]);
 
     return (
         <>
@@ -59,27 +54,18 @@ const MapComponent: FC = (): ReactElement => {
                                 key={index}
                                 position={[site.latitude, site.longitude]}
                             >
-                                <Popup>
-                                    <Box minWidth={250} display="flex" flexDirection="column" gap={2}>
-                                        <PopupTitleComponent title="País" info={site.country}/>
-                                        <PopupTitleComponent title="Sitio" info={site.sitename}/>
-                                        <PopupTitleComponent title="Red" info={site.network}/>
-                                        <PopupTitleComponent title="Estado" info={site.state}/>
-
-                                        <SliderComponent min={2013} max={2025} title="Dato de entrada" date={date} setDate={setDate}/>
-                                    </Box>
-                                    <Button sx={{ mt: 1 }} size="sm" onClick={(): Promise<void> => onFindSubset(site.latitude, site.longitude)}>Detalles</Button>
-                                </Popup>
+                                <Tooltip permanent>{site.sitename}</Tooltip>
+                                <PopupComponent site={site} index={index} setInfo={setInfo}/>
                             </Marker>
                         );
                     })
                 }
                 </MarkerClusterGroup>
                 {
-                    polygons
+                    info.polygons
                     .map((cell, index: number): ReactElement => {
                         return <Polygon key={index} positions={cell.position} pathOptions={{
-                            fillColor: (cell.data !== null) ? getColor(cell.data) : "black",
+                            fillColor: (cell.data !== null) ? getColor(cell.data[info.date]) : "black",
                             color: "#000",
                             weight: 1,
                             fillOpacity: 0.6
@@ -87,6 +73,7 @@ const MapComponent: FC = (): ReactElement => {
                     })
                 }
             </MapContainer>
+            {info.siteSelected !== -1 && <InfoComponent band={info.band} site={sites?.sites[info.siteSelected]}/>}
         </>
     );
 };
