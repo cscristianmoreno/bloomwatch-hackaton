@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Option, Select, Slider, Typography } from "@mui/joy";
+import { Box, Button, CircularProgress, Divider, Option, Select, Slider, Typography } from "@mui/joy";
 import { useEffect, useRef, useState, type Dispatch, type FC, type ReactElement, type RefObject, type SetStateAction } from "react";
 import { dateFormatUtil } from "../../utils/date-format.util";
 import type { DateTypeStruct, ModisDateTypeStruct } from "../../types/date.type";
@@ -6,6 +6,7 @@ import type { SliderComponentTypeStruct } from "../../types/slider-component.typ
 import { useFind } from "../../hooks/use-find.hook";
 import type { SubsetTypeStruct } from "../../types/subset.type";
 import { generateRasterPolygonsCentered } from "../../utils/cell.util";
+import { useLoading } from "../../hooks/use-loading.hook";
 
 const BANDS: string[] = [
   "250m_16_days_blue_reflectance",
@@ -26,6 +27,8 @@ const BANDS: string[] = [
 export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, siteSelected  }: SliderComponentTypeStruct): ReactElement => {
     const { sites, getSubset, getAllDatesByCoords } = useFind();
 
+    const { loading, onSetLoading } = useLoading();
+
     const [dates, setDates] = useState<DateTypeStruct | null>(null);
     const [date, setDate] = useState<string>("");
     const [bands, setBands] = useState<string>(BANDS[0]);
@@ -33,6 +36,7 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
 
 
     const onFindSubset = async (lat: number, lon: number): Promise<void> => {
+        onSetLoading(true);
         const result: SubsetTypeStruct = await getSubset(lat, lon, date, km);
         const latlongs = generateRasterPolygonsCentered(result, bands);
         
@@ -44,13 +48,14 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
             polygons: latlongs,
             siteSelected: siteSelected,
             km: km
-        })
+        });
+
+        onSetLoading(false);
     };
 
     useEffect((): void => {
         const findDatesByCoords = async () => {
             const result: DateTypeStruct = await getAllDatesByCoords(site.latitude, site.longitude);
-
             setDates(result);
         };
         
@@ -60,16 +65,18 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
     return (
         <Box display="flex" flexDirection="column" gap={1}>
             <Typography component="span" typography="title-sm">Búsqueda por fecha</Typography>
-            <Box>
-                <Select onChange={(_, value): void => setDate(value)}>
+            {!dates && <CircularProgress size="sm"/>}
+            {dates && <Box>
+                <Select defaultValue={dates.dates[0].modis_date} onChange={(_, value): void => setDate(value)}>
                 {
-                    dates?.dates.map((value: ModisDateTypeStruct, index: number): ReactElement => {
+
+                    dates && dates.dates.map((value: ModisDateTypeStruct, index: number): ReactElement => {
                         return <Option value={value.modis_date} key={index}>{value.calendar_date}</Option>
                     })
                 }
                 </Select>
-            </Box>
-
+            </Box>}
+            
             <Box>
                 <Typography component="span" typography="title-sm">Seleccionar banda</Typography>
                 <Select defaultValue={BANDS[0]} onChange={(_, value): void => setBands(value)}>
@@ -93,7 +100,7 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
                 />
             </Box>
 
-            <Button sx={{ mt: 1 }} size="sm" onClick={(): Promise<void> => onFindSubset(site.latitude, site.longitude)}>Analizar</Button>
+            <Button disabled={loading} sx={{ mt: 1 }} size="sm" onClick={(): Promise<void> => onFindSubset(site.latitude, site.longitude)}>{(loading) ? "Buscando..." : "Analizar"}</Button>
         </Box>
     );
 };

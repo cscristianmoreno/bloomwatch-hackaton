@@ -1,17 +1,21 @@
-import { Box, Typography } from "@mui/joy";
+import { Box, CircularProgress, Typography } from "@mui/joy";
 import { useState, type FC, type ReactElement } from "react";
 import type { SiteTypeStruct } from "../../types/sites.type";
 import { getLegendItemsForBand } from "../../utils/cell.util";
 import { Info } from "@mui/icons-material";
+import { useLoading } from "../../hooks/use-loading.hook";
 
-const InfoComponent: FC<{ site: SiteTypeStruct, band: string }> = ({ site, band }: { site: SiteTypeStruct, band: string }): ReactElement => {
+const InfoComponent: FC<{ site: SiteTypeStruct | undefined, band: string }> = ({ site, band }: { site: SiteTypeStruct | undefined, band: string }): ReactElement => {
     const [details, setDetails] = useState<boolean>(true);
+    const { loading } = useLoading();
 
     return (
         <Box position="absolute" zIndex={1000} top={80} left={10}>
-            <Info color="primary" onClick={(): void => setDetails(!details)}/>
+            {loading && <Typography startDecorator={<CircularProgress size="sm" color="primary"/>} level="body-sm">Buscando datos...</Typography>}
+            {!loading && !site && <Typography startDecorator={<Info color="primary"/>} level="body-sm">No hay datos para mostrar</Typography>}
+            {!loading && site && <Typography onClick={(): void => setDetails(!details)}  startDecorator={<Info color="primary"/>} level="body-sm">Detalles</Typography>}
             {
-                details && 
+                site && details && !loading && 
                 <Box bgcolor="white" padding={1} borderRadius={5}>
                 {
                     getLegendItemsForBand(band).map((value): ReactElement => {

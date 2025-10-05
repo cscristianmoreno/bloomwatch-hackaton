@@ -5,5 +5,5 @@ import type { InfoTypestruct } from "./info.type";
 export type SliderComponentTypeStruct = {
     site: SiteTypeStruct,
     setInfo: Dispatch<SetStateAction<InfoTypestruct>>,
-    siteSelected: number
+    siteSelected: number,
 };

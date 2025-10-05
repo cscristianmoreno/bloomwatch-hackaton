@@ -23,6 +23,7 @@ type Polygon = LatLng[];
 const MapComponent: FC = (): ReactElement => {
 
     const { sites } = useFind();
+    const [loading, setLoading] = useState<boolean>(false);
 
     const [info, setInfo] = useState<InfoTypestruct>({
         polygons: [],
@@ -55,7 +56,7 @@ const MapComponent: FC = (): ReactElement => {
                                 position={[site.latitude, site.longitude]}
                             >
                                 <Tooltip permanent>{site.sitename}</Tooltip>
-                                <PopupComponent site={site} index={index} setInfo={setInfo}/>
+                                <PopupComponent loading={loading} setLoading={setLoading} site={site} index={index} setInfo={setInfo}/>
                             </Marker>
                         );
                     })
@@ -73,7 +74,7 @@ const MapComponent: FC = (): ReactElement => {
                     })
                 }
             </MapContainer>
-            {info.siteSelected !== -1 && <InfoComponent band={info.band} site={sites?.sites[info.siteSelected]}/>}
+            <InfoComponent band={info.band} site={sites?.sites[info.siteSelected]}/>
         </>
     );
 };
