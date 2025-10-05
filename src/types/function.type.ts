@@ -1,0 +1,1 @@
+export type FunctionTypeStruct<T, S = T> = (p?: T) => S extends void ? void : S;
