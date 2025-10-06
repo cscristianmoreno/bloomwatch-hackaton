@@ -60,6 +60,14 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
         
         findDatesByCoords();
     }, []);
+
+    useEffect((): void => {
+        if (!dates) {
+            return;
+        }
+
+        setDate(dates.dates[0].modis_date);
+    }, [dates]);
     
     return (
         <Box display="flex" flexDirection="column" gap={1}>

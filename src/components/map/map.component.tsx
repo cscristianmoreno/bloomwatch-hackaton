@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FC, type ReactElement } from "react";
 import "leaflet/dist/leaflet.css";
 import 'react-leaflet-cluster/dist/assets/MarkerCluster.css'
 import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css'
+import "./map.component.css";
 
 import type { SiteTypeStruct } from "../../types/sites.type";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -16,6 +17,7 @@ import { generateRasterPolygonsCentered, getColor } from "../../utils/cell.util"
 import type { InfoTypestruct } from "../../types/info.type";
 import InfoComponent from "../info/info.component";
 import PopupComponent from "../popup/popup.component";
+import { Icon, Point } from "leaflet";
 
 type LatLng = [number, number];
 type Polygon = LatLng[];
@@ -24,6 +26,7 @@ const MapComponent: FC = (): ReactElement => {
 
     const { sites } = useFind();
     const [loading, setLoading] = useState<boolean>(false);
+    const mapRef = useRef(null);
 
     const [info, setInfo] = useState<InfoTypestruct>({
         polygons: [],
@@ -42,6 +45,7 @@ const MapComponent: FC = (): ReactElement => {
                 id="map"
                 center={[import.meta.env.VITE_ARG_POSITION_LATITUDE, import.meta.env.VITE_ARG_POSITION_LONGITUDE]}
                 zoom={5}
+                ref={mapRef}
             >
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -54,8 +58,14 @@ const MapComponent: FC = (): ReactElement => {
                             <Marker
                                 key={index}
                                 position={[site.latitude, site.longitude]}
+                                icon={new Icon({
+                                    iconUrl: "/images/plant.jpg",
+                                    iconSize: new Point(30, 30, false),
+                                    className: `class_marker_icon`,
+                                    
+                                })}
                             >
-                                <Tooltip permanent>{site.sitename}</Tooltip>
+                                <Tooltip offset={[20, -20]} permanent>{site.sitename}</Tooltip>
                                 <PopupComponent loading={loading} setLoading={setLoading} site={site} index={index} setInfo={setInfo}/>
                             </Marker>
                         );
@@ -73,8 +83,8 @@ const MapComponent: FC = (): ReactElement => {
                         }}/>
                     })
                 }
+                <InfoComponent band={info.band} site={sites?.sites[info.siteSelected]}/>
             </MapContainer>
-            <InfoComponent band={info.band} site={sites?.sites[info.siteSelected]}/>
         </>
     );
 };

@@ -11,7 +11,7 @@ const PopupComponent: FC<PopupTypeStruct> = ({ site, index, setInfo }: PopupType
 
     return (
         <Popup>
-            <Box minWidth={100} display="flex" flexDirection="column" gap={2}>
+            <Box minWidth={200} maxWidth={200} display="flex" flexDirection="column" gap={2}>
                 <Typography onClick={(): void => setDetails(!details)} component="span" level="body-sm">{(!details) ? "Mostrar" : "Ocultar"} detalles</Typography>
                 {details &&
                     <>

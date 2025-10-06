@@ -1,0 +1,24 @@
+.class_marker_icon {
+    border-radius: 100%;
+    /* border-radius: 50% 50% 50% 0; */
+    background-color: white;
+    border-width: 5px;
+    border-style: solid;
+    box-shadow: 7px 10px 10px rgba(0, 0, 0, 30%);
+    padding: 5px;
+    /* object-fit: cover; */
+    border-color: green;
+}
+
+.class_marker_icon img {
+    /* border-style: solid !important; */
+    /* transform: rotate(45deg) !important; */
+    /* width: 100% !important; */
+    /* height: 100% !important; */
+    width: 100%; 
+    height: 100%; 
+    border-radius: 50%;
+    padding: 5px;
+    /* object-fit: cover; */
+    /* paddin */
+}
