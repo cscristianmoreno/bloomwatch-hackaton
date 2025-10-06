@@ -34,7 +34,6 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
     const [bands, setBands] = useState<string>(BANDS[0]);
     const [km, setKm] = useState<number>(1);
 
-
     const onFindSubset = async (lat: number, lon: number): Promise<void> => {
         onSetLoading(true);
         const result: SubsetTypeStruct = await getSubset(lat, lon, date, km);
@@ -100,7 +99,7 @@ export const SliderComponent: FC<SliderComponentTypeStruct> = ({ setInfo, site, 
                 />
             </Box>
 
-            <Button disabled={loading} sx={{ mt: 1 }} size="sm" onClick={(): Promise<void> => onFindSubset(site.latitude, site.longitude)}>{(loading) ? "Buscando..." : "Analizar"}</Button>
+            <Button disabled={loading || !dates?.dates.length} sx={{ mt: 1 }} size="sm" onClick={(): Promise<void> => onFindSubset(site.latitude, site.longitude)}>{(loading) ? "Buscando..." : "Analizar"}</Button>
         </Box>
     );
 };

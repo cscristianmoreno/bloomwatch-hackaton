@@ -1,22 +1,22 @@
-import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { http } from "../services/http/http.service";
-import { FunctionTypeStruct } from "../types/function.type";
-import { LocalStorageUtil } from "../utils/local-storage.util";
-import { ResponseDTO } from "../dto/response.dto";
-import { AuthResponseDTO } from "../dto/auth-response.dto";
+import { AxiosError, type AxiosResponse } from "axios";
+import { http } from "../api/api.service";
 
 export class HttpInterceptor {
     
-    constructor() {
+    constructor(private onSetLoading: (loading: boolean) => void) {
         this.initializeInterceptor();
     }
 
     public initializeInterceptor(): void {
 
-        http.interceptors.response.use(
-            (error: AxiosError): Error => {
-                switch(error.status) {
-                }
+       http.interceptors.response.use(
+            (response: AxiosResponse): AxiosResponse => {
+
+                return response;
+            },
+            (error: AxiosError): void => {
+                alert(error.response?.data);
+                this.onSetLoading(false);
             }
         );
     }
